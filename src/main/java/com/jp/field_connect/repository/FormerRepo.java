@@ -1,4 +1,4 @@
-package com.jp.field_connect.service;
+package com.jp.field_connect.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
