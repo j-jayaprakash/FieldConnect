@@ -13,7 +13,7 @@ public class BookingDetailsDTO implements Serializable{
     private LocalDateTime endsOn;
     private String type;
     private Double serviceCost;
-    private Boolean bookingStatus;
+    
     
     private List<Long> workerIds;
     private Long serviceId;

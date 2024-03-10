@@ -103,7 +103,9 @@ public class FCServiceImpl implements FCService {
 			user.setUserName(userDto.getUserName());
 			user.setPassword(encodedPassword);
 			user.setEnabled(userDto.isEnabled());
-			user.setRoles(userDto.getRoles());
+			HashSet<String> hashSet = new HashSet<String>();
+			hashSet.add(userDto.getRoles());
+			user.setRoles(hashSet);
 			// Save the user to the database
 			Users savedUser = usersRepo.save(user);
 
@@ -179,7 +181,7 @@ public class FCServiceImpl implements FCService {
 		PutObjectRequest putReq = new PutObjectRequest(bucketName, fileName, fileObj);
 		s3Client.putObject(putReq);
 
-		Date expiration = new Date(System.currentTimeMillis() + 3600000); // 1 hour from now
+		Date expiration = new Date(System.currentTimeMillis() + 3600000*24*7); // 1 hour from now
 		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, fileName)
 				.withExpiration(expiration);
 		URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
@@ -258,6 +260,9 @@ public class FCServiceImpl implements FCService {
 	@Override
 	@Transactional(rollbackOn = Exception.class)
 	public AppResponseDTO bookWorkersAndService(BookingDetailsDTO bookingDTO) {
+		
+		if (currentUser == null)
+			assignUser(SecurityContextHolder.getContext().getAuthentication().getName());
 
 		HashSet<BookingDetails> bookinglist = new HashSet<BookingDetails>();
 		if (bookingDTO.getType().equals(AppConstants.BOOKING_TYPE_WORKER)) {
@@ -276,6 +281,7 @@ public class FCServiceImpl implements FCService {
 					bookingDetails.setServiceCost(bookingDTO.getServiceCost());
 					bookingDetails.setBookingStatus(true);
 					bookingDetails.setType(bookingDTO.getType());
+					bookingDetails.setFormer(currentUser.getFormerDetails());
 
 					bookinglist.add(bookingDetails);
 
@@ -295,6 +301,7 @@ public class FCServiceImpl implements FCService {
 			bookingDetails.setServiceCost(bookingDTO.getServiceCost());
 			bookingDetails.setBookingStatus(true); // Assuming booking is confirmed by default
 			bookingDetails.setType(bookingDTO.getType());
+			bookingDetails.setFormer(currentUser.getFormerDetails());
 
 			bookinglist.add(bookingDetails);
 
@@ -333,6 +340,9 @@ public class FCServiceImpl implements FCService {
 
 	@Override
 	public AppResponseDTO registerService(ServiceDetailsDTO serviceDto) {
+		
+		if (currentUser == null)
+			assignUser(SecurityContextHolder.getContext().getAuthentication().getName());
 
 		ServiceDetails serviceDetails = new ServiceDetails();
 

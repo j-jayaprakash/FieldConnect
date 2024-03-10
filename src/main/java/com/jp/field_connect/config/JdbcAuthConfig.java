@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.jp.field_connect.service.UserDetailsServiceImpl;
 
@@ -28,12 +31,13 @@ public class JdbcAuthConfig {
 		http.authorizeHttpRequests().antMatchers("/login","/register/**").permitAll().anyRequest().authenticated();
 
 		http.csrf().disable();
-		http.cors().disable();
+		http.cors();
 		http.httpBasic();
-		http.formLogin().defaultSuccessUrl("/", false);
 		return http.build();
 	}
 
+
+	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
